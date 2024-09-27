@@ -1,26 +1,14 @@
-import { getUsers,  } from '@/lib/db';
-import { UsersTable } from './users-table';
-import { Search } from './search';
+"use client"
+import PrequalForm from '../components/PrequalForm'
 
 
-export default async function IndexPage({
-  searchParams
-}: {
-  searchParams: { q: string; offset: string };
-}) {
-  const search = searchParams.q ?? '';
-  const offset = searchParams.offset ?? 0;
-  const { users, newOffset } = await getUsers(search, Number(offset));
-
+export default async function SettingsPage() {
   return (
-    <main className="flex flex-1 flex-col p-4 md:p-6">
-      <div className="flex items-center mb-8">
-        <h1 className="font-semibold text-lg md:text-2xl">NTS Shipper Tasks/Follow Ups</h1>
-      </div>
-      <div className="w-full mb-4">
-        <Search value={searchParams.q} />
-      </div>
-      <UsersTable users={users} offset={newOffset} />
+    <main className="flex w-full flex-1 flex-col items-center gap-4 p-4 md:gap-8 md:p-6">
+
+
+        <h1 className="font-semibold pb-1 text-lg md:text-2xl">Loan Request Details</h1>
+        <PrequalForm />
     </main>
   );
 }

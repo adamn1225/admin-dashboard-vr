@@ -1,5 +1,22 @@
+"use client"
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
+import { styled } from '@mui/material/styles';
+import Button from '@mui/material/Button';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+
+
+const VisuallyHiddenInput = styled('input')({
+  clip: 'rect(0 0 0 0)',
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
+});
 
 export default async function SettingsPage() {
   return (
@@ -18,9 +35,9 @@ export default async function SettingsPage() {
       noValidate
       autoComplete="off"
     >
-    <div className='flex flex-row gap-y-1'>
-    <label>Send SMS :
-    <TextField id="outlined-basic" label="2 Days" variant="outlined" />
+    <div className='md:flex md:items-center'>
+    <label>Send SMS :<span  className='mx-5'>
+    <TextField id="outlined-basic" label="2 Days" variant="outlined" /></span>
     Prior To Shipping Date</label>
     </div>
       <br />
@@ -28,6 +45,17 @@ export default async function SettingsPage() {
     <label>Archive After:</label>
     <TextField id="outlined-basic" label="Amount of Days" variant="outlined" />
     </div>
+    <Button
+      component="label"
+      role={undefined}
+      variant="contained"
+      tabIndex={-1}
+      startIcon={<CloudUploadIcon />}
+    >
+      Upload file
+      <VisuallyHiddenInput type="file" />
+    </Button>
+          
     </Box>
       </div>
     </main>

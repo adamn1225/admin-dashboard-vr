@@ -1,10 +1,10 @@
 import './globals.css';
 
 import Link from 'next/link';
-import { Analytics } from '@vercel/analytics/react';
 import { Logo, SettingsIcon, UsersIcon, VercelLogo } from '@/components/icons';
-import { User } from './user';
 import { NavItem } from './nav-item';
+import EngineeringRoundedIcon from '@mui/icons-material/EngineeringRounded';
+import PrecisionManufacturingSharpIcon from '@mui/icons-material/PrecisionManufacturingSharp';
 
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',
@@ -20,37 +20,32 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full bg-gray-50">
       <body>
-        <div className="grid min-h-screen w-full lg:grid-cols-[280px_1fr]">
-          <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
+        <div className="grid min-h-screen w-full lg:grid-cols-[360px_1fr]">
+          <div className="hidden border-r bg-slate-900 lg:block dark:bg-gray-800/40">
             <div className="flex h-full max-h-screen flex-col gap-2">
               <div className="flex h-[60px] items-center border-b px-5">
                 <Link
                   className="flex items-center gap-2 font-semibold"
                   href="/"
                 >
-                  <Logo />
-                  <span className="">Auto Follow Up</span>
+                  <PrecisionManufacturingSharpIcon style={{ color: '#f3f4f6' }}/>
+                  <span className="text-slate-100">Nationwide Equipment Funding</span>
                 </Link>
               </div>
               <div className="flex-1 overflow-auto py-2">
                 <nav className="grid items-start px-4 text-sm font-medium">
+                <NavItem href="/profile">
+                    <EngineeringRoundedIcon className="h-4 w-4" />
+                   <span className="text-slate-100 text-slate-100">Profile</span> 
+                  </NavItem>
                 <NavItem href="/settings">
-                    <SettingsIcon className="h-4 w-4" />
-                    Settings
+                    <SettingsIcon className="h-4 w-4 text-slate-100" />
+                    <span className="text-slate-100">Settings</span> 
                   </NavItem>
                   <NavItem href="/">
-                    <UsersIcon className="h-4 w-4" />
-                    Task/Follow Up List
+                  <span className="text-slate-100">Loan Details</span> 
                   </NavItem>
-                  <NavItem href="/calendar">
-                    Calander & Tasks
-                  </NavItem>
-                  <NavItem href="/">
-                    Vendors
-                  </NavItem>
-                  <NavItem href="/settings">
-                    Aggregator/API
-                  </NavItem>
+                  
                 </nav>
               </div>
             </div>
@@ -64,12 +59,11 @@ export default function RootLayout({
                 <Logo />
                 <span className="">Auto Follow Up</span>
               </Link>
-              <User />
+          
             </header>
             {children}
           </div>
         </div>
-        <Analytics />
       </body>
     </html>
   );
