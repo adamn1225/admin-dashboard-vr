@@ -34,7 +34,7 @@ export default function RootLayout({
               </div>
               <div className="flex-1 overflow-auto py-2">
                 <nav className="grid items-start px-4 text-sm font-medium">
-                <NavItem href="/profile">
+                <NavItem href="/user-profile">
                     <EngineeringRoundedIcon className="h-4 w-4" />
                    <span className="text-slate-100 text-slate-100">Profile</span> 
                   </NavItem>
