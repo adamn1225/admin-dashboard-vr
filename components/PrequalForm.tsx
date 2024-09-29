@@ -1,5 +1,5 @@
 "use client"
-import * as React from 'react';
+import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
@@ -38,18 +38,17 @@ const steps = [
 ];
 
 function PrequalForm() {
+    const [loanAmount, setLoanAmount] = useState('');
+
+    const handleLoanAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setLoanAmount(event.target.value);
+    };
     return (
-        <Box sx={{ width: '100%', padding: 2 }}>
-            <Stepper activeStep={1} alternativeLabel>
-                {steps.map((label) => (
-                    <Step key={label}>
-                        <StepLabel>{label}</StepLabel>
-                    </Step>
-                ))}
-            </Stepper>
+        <Box sx={{ width: '80%', padding: 2 }}>
+
 
             <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                <h2>Business Details</h2>
+                <h2 className='text-xl text-slate-950 font-semibold'>Business Details</h2>
 
                 <Grid container spacing={2} justifyContent="center">
                     <Grid item xs={12} md={6}>
@@ -114,20 +113,10 @@ function PrequalForm() {
                     </Grid>
                 </Grid>
 
-                <h2 className='text-grey-950 text-2xl font-semibold'>Finance Request Details</h2>
+                <h2 className='text-grey-950 text-xl font-semibold'>Finance Request Details</h2>
 
                 <Grid container spacing={2} justifyContent="center">
-                    <Grid item xs={12} md={6}>
-                        <FormControl fullWidth>
-                            <InputLabel htmlFor="outlined-adornment-amount">Requested Loan Amount</InputLabel>
-                            <OutlinedInput
-                                id="outlined-adornment-amount"
-                                startAdornment={<InputAdornment position="start">$</InputAdornment>}
-                                label="Requested Loan Amount"
-                                sx={{ input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
-                            />
-                        </FormControl>
-                    </Grid>
+
                     <Grid item xs={12} md={6}>
                         <FormControl fullWidth>
                             <InputLabel>Credit score range</InputLabel>
@@ -145,20 +134,36 @@ function PrequalForm() {
                             </Select>
                         </FormControl>
                     </Grid>
+
+                    <Grid item xs={12} md={6}>
+                        <FormControl fullWidth>
+                            <InputLabel htmlFor="outlined-adornment-amount">Requested Loan Amount</InputLabel>
+                            <OutlinedInput
+                                id="outlined-adornment-amount"
+                                startAdornment={<InputAdornment position="start">$</InputAdornment>}
+                                label="Requested Loan Amount"
+                                value={loanAmount}
+                                onChange={handleLoanAmountChange}
+                                sx={{ input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
+                            />
+                        </FormControl>
+                    </Grid>
                 </Grid>
 
-                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <h3 className='text-grey-950 text-lg font-semibold mb-2'>At least one year Financials (2 years recommended)</h3>
-                    <Button
-                        component="label"
-                        variant="contained"
-                        startIcon={<CloudUploadIcon />}
-                    >
-                        Upload Documents
-                        <VisuallyHiddenInput type="file" />
-                    </Button>
-                    <FormHelperText sx={{ color: 'primary' }} id="my-helper-text">We&apos;ll never share your information.</FormHelperText>
-                </Box>
+                {parseFloat(loanAmount) >= 75000 && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <h3 className='text-grey-950 text-lg font-semibold mb-2'>Please Provide At least one year Financials (2 years recommended)</h3>
+                        <Button
+                            component="label"
+                            variant="contained"
+                            startIcon={<CloudUploadIcon />}
+                        >
+                            Upload Documents
+                            <VisuallyHiddenInput type="file" />
+                        </Button>
+                        <FormHelperText sx={{ color: 'primary' }} id="my-helper-text">We&apos;ll never share your information.</FormHelperText>
+                    </Box>
+                )}
                 <Button className='bg-slate-950' variant="contained" endIcon={<SendIcon />}>
                     Submit
                 </Button>

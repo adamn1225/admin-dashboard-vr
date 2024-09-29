@@ -1,6 +1,6 @@
 "use client"
 import PrequalForm from '../../components/PrequalForm'
-import UserLayout from './layout'
+import UserLayout from '../user-profile/layout'
 
 export default async function SettingsPage() {
     return (
