@@ -1,10 +1,16 @@
+"use client";
 import * as React from 'react';
-import SignIn from 'app/auth/Signin'; // Adjust the import path as necessary
+import { useSearchParams } from 'next/navigation'; // Use next/navigation instead of next/router
+import SignIn from '../auth/Signin';
+import SignUp from '../auth/Signup';
 
 const UserLoginPage = () => {
+    const searchParams = useSearchParams();
+    const mode = searchParams.get('mode');
+
     return (
         <div>
-            <SignIn />
+            {mode === 'signup' ? <SignUp /> : <SignIn />}
         </div>
     );
 };

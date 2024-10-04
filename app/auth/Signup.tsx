@@ -10,13 +10,16 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Card from '@mui/material/Card';
-import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation'; // Use next/navigation instead of next/router
 
-export default function SignIn() {
+export default function Signup() {
     const [emailError, setEmailError] = React.useState(false);
     const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
     const [passwordError, setPasswordError] = React.useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = React.useState(false);
+    const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = React.useState('');
+    const router = useRouter();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -26,25 +29,29 @@ export default function SignIn() {
         const data = new FormData(event.currentTarget);
         const email = data.get('email') as string;
         const password = data.get('password') as string;
+        const name = data.get('name') as string;
 
-        const result = await signIn('credentials', {
-            redirect: false,
-            email,
-            password,
+        const response = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password, name }),
         });
 
-        if (result?.error) {
+        if (response.ok) {
+            router.push('/user-login?mode=signin');
+        } else {
+            const result = await response.json();
             setEmailError(true);
             setEmailErrorMessage(result.error);
-        } else {
-            setEmailError(false);
-            setEmailErrorMessage('');
         }
     };
 
     const validateInputs = () => {
         const email = document.getElementById('email') as HTMLInputElement;
         const password = document.getElementById('password') as HTMLInputElement;
+        const confirmPassword = document.getElementById('confirmPassword') as HTMLInputElement;
 
         let isValid = true;
 
@@ -66,6 +73,15 @@ export default function SignIn() {
             setPasswordErrorMessage('');
         }
 
+        if (password.value !== confirmPassword.value) {
+            setConfirmPasswordError(true);
+            setConfirmPasswordErrorMessage('Passwords do not match.');
+            isValid = false;
+        } else {
+            setConfirmPasswordError(false);
+            setConfirmPasswordErrorMessage('');
+        }
+
         return isValid;
     };
 
@@ -80,7 +96,7 @@ export default function SignIn() {
                         variant="h4"
                         sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', paddingBottom: 2 }}
                     >
-                        Sign in
+                        Sign up
                     </Typography>
                     <Box
                         component="form"
@@ -112,6 +128,18 @@ export default function SignIn() {
                             />
                         </FormControl>
                         <FormControl>
+                            <FormLabel htmlFor="name">Name</FormLabel>
+                            <TextField
+                                id="name"
+                                type="text"
+                                name="name"
+                                placeholder="Your Name"
+                                autoComplete="name"
+                                fullWidth
+                                variant="outlined"
+                            />
+                        </FormControl>
+                        <FormControl>
                             <FormLabel htmlFor="password">Password</FormLabel>
                             <TextField
                                 error={passwordError}
@@ -120,32 +148,45 @@ export default function SignIn() {
                                 placeholder="••••••"
                                 type="password"
                                 id="password"
-                                autoComplete="current-password"
-                                autoFocus
+                                autoComplete="new-password"
                                 required
                                 fullWidth
                                 variant="outlined"
                                 color={passwordError ? 'error' : 'primary'}
                             />
                         </FormControl>
+                        <FormControl>
+                            <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+                            <TextField
+                                error={confirmPasswordError}
+                                helperText={confirmPasswordErrorMessage}
+                                name="confirmPassword"
+                                placeholder="••••••"
+                                type="password"
+                                id="confirmPassword"
+                                autoComplete="new-password"
+                                required
+                                fullWidth
+                                variant="outlined"
+                                color={confirmPasswordError ? 'error' : 'primary'}
+                            />
+                        </FormControl>
                         <Button
-                            className='bg-gray-950'
                             type="submit"
                             fullWidth
                             variant="contained"
-                            onClick={validateInputs}
                         >
-                            Sign in
+                            Sign up
                         </Button>
                         <Typography sx={{ textAlign: 'center' }}>
-                            Don&apos;t have an account?{' '}
+                            Already have an account?{' '}
                             <span>
                                 <Link
-                                    href="/user-login?mode=signup" // Adjusted path to the sign-up page with query parameter
+                                    href="/user-login?mode=signin" // Adjusted path to the sign-in page with query parameter
                                     variant="body2"
                                     sx={{ alignSelf: 'center' }}
                                 >
-                                    Sign up
+                                    Sign in
                                 </Link>
                             </span>
                         </Typography>
