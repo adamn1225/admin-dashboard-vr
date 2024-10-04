@@ -1,20 +1,12 @@
-"use client"
-import PrequalForm from '../../components/PrequalForm'
-import UserLayout from '../user-profile/layout'
+import * as React from 'react';
+import SignIn from 'app/auth/Signin'; // Adjust the import path as necessary
 
-export default async function SettingsPage() {
+const UserLoginPage = () => {
     return (
-        <UserLayout>
-
-            <main className="flex w-full flex-1 flex-col items-center">
-<div className='w-full'>
-    
-                    <h1 className="font-semibold pb-1 text-lg md:text-3xl">Loan Request Details</h1>
-                    <PrequalForm />
-                    
-</div>
-            </main>
-
-        </UserLayout>
+        <div>
+            <SignIn />
+        </div>
     );
-}
+};
+
+export default UserLoginPage;
