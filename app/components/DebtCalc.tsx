@@ -192,6 +192,7 @@ const DebtCalc: React.FC = () => {
                 </form>
 
                 <div id="results" className="mt-5 flex flex-col w-full md:w-1/2">
+                    <div><h2 className='text-center text-gray-950 font-bold'>Normal Results</h2></div>
                     <table className="table-auto w-full">
                         <thead>
                             <tr>
@@ -206,21 +207,19 @@ const DebtCalc: React.FC = () => {
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Interest Paid (Interest + {(parseFloat(additionalInterestRate) * 100).toFixed(0)}% of Balance)</td>
-                                <td className="border px-4 py-2">{results.totalInterestPaidWithMinPayment}</td>
+                                <td className="border px-4 py-2">${parseFloat(results.totalInterestPaidWithMinPayment).toLocaleString()}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Principal Paid</td>
-                                <td className="border px-4 py-2">{results.totalPrincipalPaid}</td>
+                                <td className="border px-4 py-2">${parseFloat(results.totalPrincipalPaid).toLocaleString()}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Amount Paid</td>
-                                <td className="border px-4 py-2">{results.totalAmountPaid}</td>
+                                <td className="border px-4 py-2">${parseFloat(results.totalAmountPaid).toLocaleString()}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
-                
 
                 <div id="results" className="mt-5 flex flex-col w-full md:w-1/2">
                     <div><h2 className='text-center text-gray-950 font-bold'>Gemach Results</h2></div>
@@ -238,15 +237,15 @@ const DebtCalc: React.FC = () => {
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Interest Paid with Gemach Services</td>
-                                <td className="border px-4 py-2">{results.totalInterestPaidGemach}</td>
+                                <td className="border px-4 py-2">${parseFloat(results.totalInterestPaidGemach).toLocaleString()}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Principal Paid with Gemach Services</td>
-                                <td className="border px-4 py-2">{results.totalPrincipalPaidGemach}</td>
+                                <td className="border px-4 py-2">${parseFloat(results.totalPrincipalPaidGemach).toLocaleString()}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Amount Paid with Gemach Services</td>
-                                <td className="border px-4 py-2">{results.totalAmountPaidGemach}</td>
+                                <td className="border px-4 py-2">${parseFloat(results.totalAmountPaidGemach).toLocaleString()}</td>
                             </tr>
                         </tbody>
                     </table>
