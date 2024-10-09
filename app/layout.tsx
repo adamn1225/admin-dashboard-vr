@@ -1,8 +1,7 @@
 import './globals.css';
 
 import Link from 'next/link';
-
-
+import { Logo, SettingsIcon, UsersIcon, VercelLogo } from './components/icons'; // Corrected import path
 import { NavItem } from './nav-item';
 import EngineeringRoundedIcon from '@mui/icons-material/EngineeringRounded';
 import PrecisionManufacturingSharpIcon from '@mui/icons-material/PrecisionManufacturingSharp';
@@ -49,7 +48,7 @@ export default function RootLayout({
                     <span className=" text-slate-100">Log in</span>
                   </NavItem>
                   <NavItem href="/settings">
-                  
+                    <SettingsIcon className="h-4 w-4 text-slate-100" />
                     <span className="text-slate-100">Settings</span>
                   </NavItem>
 
