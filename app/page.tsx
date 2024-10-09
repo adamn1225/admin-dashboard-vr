@@ -1,17 +1,15 @@
 "use client";
-import NextAuth from 'next-auth';
-import Providers from 'next-auth/providers';
 import React, { useState } from 'react';
 import PrequalForm from '../components/PrequalForm';
 import Link from 'next/link';
-import NewClientForm from '@/components/NewClientForm';
+import NewClientForm from '../components/NewClientForm'; // Corrected import path
 import Button from '@mui/material/Button';
-
 
 export default function SettingsPage() {
   const [activeForm, setActiveForm] = useState(<PrequalForm />);
 
   const handleFormChange = () => {
+    console.log('Switching to NewClientForm');
     setActiveForm(<NewClientForm />);
   };
 
@@ -26,10 +24,10 @@ export default function SettingsPage() {
         </Link>
       </div>
 
-    <div className='flex gap-2'>
+      <div className='flex gap-2'>
         <Button className='bg-gray-950' variant="contained" onClick={() => setActiveForm(<PrequalForm />)} value='prequal'>Prequalification Form</Button>
         <Button className='bg-gray-950' onClick={handleFormChange} variant="contained" value='newClient'>New Client Form</Button>
-    </div>
+      </div>
 
       {activeForm}
     </main>

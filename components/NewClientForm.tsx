@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
-import { FormHelperText } from '@mui/material';
+import { FormHelperText, Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
@@ -16,8 +16,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-
 import SendIcon from '@mui/icons-material/Send';
+import dayjs, { Dayjs } from 'dayjs';
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -31,22 +31,73 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
-const steps = [
-    'Loan Progress 1',
-    'Loan Progress 2',
-    'Loan Progress 3',
-];
-
 function NewClientForm() {
     const [loanAmount, setLoanAmount] = useState('');
+    const [email, setEmail] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [companyName, setCompanyName] = useState('');
+    const [dateEstablished, setDateEstablished] = useState<Dayjs | null>(null);
+    const [streetAddress, setStreetAddress] = useState('');
+    const [zipCode, setZipCode] = useState('');
+    const [creditScoreRange, setCreditScoreRange] = useState('');
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
 
     const handleLoanAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setLoanAmount(event.target.value);
     };
+
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setError('');
+        setSuccess('');
+
+        try {
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email,
+                    firstName,
+                    lastName,
+                    phoneNumber,
+                    companyName,
+                    dateEstablished,
+                    streetAddress,
+                    zipCode,
+                    creditScoreRange,
+                    loanAmount
+                }),
+            });
+
+            if (response.ok) {
+                setSuccess('Account created successfully!');
+                // Clear form fields
+                setEmail('');
+                setFirstName('');
+                setLastName('');
+                setPhoneNumber('');
+                setCompanyName('');
+                setDateEstablished(null);
+                setStreetAddress('');
+                setZipCode('');
+                setCreditScoreRange('');
+                setLoanAmount('');
+            } else {
+                const data = await response.json();
+                setError(data.error || 'An error occurred');
+            }
+        } catch (error) {
+            setError('An error occurred');
+        }
+    };
+
     return (
         <Box sx={{ width: '80%', padding: 2 }}>
-
-
             <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                 <h2 className='text-xl text-slate-950 font-semibold'>Business Details</h2>
 
@@ -57,6 +108,8 @@ function NewClientForm() {
                             label="First name"
                             variant="outlined"
                             fullWidth
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
                             sx={{ input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
                         />
                     </Grid>
@@ -66,6 +119,8 @@ function NewClientForm() {
                             label="Last name"
                             variant="outlined"
                             fullWidth
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
                             sx={{ input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
                         />
                     </Grid>
@@ -74,10 +129,12 @@ function NewClientForm() {
                 <Grid container spacing={2} justifyContent="center">
                     <Grid item xs={12} md={6}>
                         <TextField
-                            id="Email"
+                            id="email"
                             label="Email"
                             variant="outlined"
                             fullWidth
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             sx={{ input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
                         />
                     </Grid>
@@ -87,6 +144,8 @@ function NewClientForm() {
                             label="Phone Number"
                             variant="outlined"
                             fullWidth
+                            value={phoneNumber}
+                            onChange={(e) => setPhoneNumber(e.target.value)}
                             sx={{ input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
                         />
                     </Grid>
@@ -99,6 +158,8 @@ function NewClientForm() {
                             label="Company name"
                             variant="outlined"
                             fullWidth
+                            value={companyName}
+                            onChange={(e) => setCompanyName(e.target.value)}
                             sx={{ input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
                         />
                     </Grid>
@@ -107,6 +168,8 @@ function NewClientForm() {
                             <DatePicker
                                 label="Date established - MM/YYYY"
                                 views={['month', 'year']}
+                                value={dateEstablished}
+                                onChange={(newValue) => setDateEstablished(newValue)}
                                 sx={{ width: '100%', svg: { color: '#1565c0' }, input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
                             />
                         </LocalizationProvider>
@@ -120,6 +183,8 @@ function NewClientForm() {
                             label="Personal/Business Street Address"
                             variant="outlined"
                             fullWidth
+                            value={streetAddress}
+                            onChange={(e) => setStreetAddress(e.target.value)}
                             sx={{ input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
                         />
                     </Grid>
@@ -129,6 +194,8 @@ function NewClientForm() {
                             label="Zip Code"
                             variant="outlined"
                             fullWidth
+                            value={zipCode}
+                            onChange={(e) => setZipCode(e.target.value)}
                             sx={{ input: { color: 'primary' }, label: { color: 'primary' }, fieldset: { borderColor: "primary", color: "primary", border: 2 } }}
                         />
                     </Grid>
@@ -137,7 +204,6 @@ function NewClientForm() {
                 <h2 className='text-grey-950 text-xl font-semibold'>Finance Request Details</h2>
 
                 <Grid container spacing={2} justifyContent="center">
-
                     <Grid item xs={12} md={6}>
                         <FormControl fullWidth>
                             <InputLabel>Credit score range</InputLabel>
@@ -145,6 +211,8 @@ function NewClientForm() {
                                 sx={{ fieldset: { borderColor: "primary", color: "primary", border: 2 }, input: { color: 'primary' } }}
                                 labelId="select-label"
                                 id="credit-score-range"
+                                value={creditScoreRange}
+                                onChange={(e) => setCreditScoreRange(e.target.value)}
                                 label="Credit score range"
                             >
                                 <MenuItem value={'1'}>800 to 850: Excellent Credit Score</MenuItem>
@@ -185,9 +253,20 @@ function NewClientForm() {
                         <FormHelperText sx={{ color: 'primary' }} id="my-helper-text">We&apos;ll never share your information.</FormHelperText>
                     </Box>
                 )}
-                <Button className='bg-slate-950' variant="contained" endIcon={<SendIcon />}>
+                <Button
+                    className='bg-slate-950'
+                    variant="contained"
+                    endIcon={<SendIcon />}
+                    onClick={handleSubmit}
+                >
                     Submit
                 </Button>
+                {error && (
+                    <Typography color="error">{error}</Typography>
+                )}
+                {success && (
+                    <Typography color="primary">{success}</Typography>
+                )}
             </Box>
         </Box>
     );

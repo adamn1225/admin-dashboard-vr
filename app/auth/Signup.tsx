@@ -31,20 +31,25 @@ export default function Signup() {
         const password = data.get('password') as string;
         const name = data.get('name') as string;
 
-        const response = await fetch('/api/auth/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password, name }),
-        });
+        try {
+            const response = await fetch('/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password, name }),
+            });
 
-        if (response.ok) {
-            router.push('/user-login?mode=signin');
-        } else {
-            const result = await response.json();
+            if (response.ok) {
+                router.push('/user-login?mode=signin');
+            } else {
+                const result = await response.json();
+                setEmailError(true);
+                setEmailErrorMessage(result.error || 'An error occurred. Please try again.');
+            }
+        } catch (error) {
             setEmailError(true);
-            setEmailErrorMessage(result.error);
+            setEmailErrorMessage('An error occurred. Please try again.');
         }
     };
 
