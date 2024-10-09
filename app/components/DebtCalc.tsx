@@ -138,6 +138,10 @@ const DebtCalc: React.FC = () => {
         return `${month}${suffix} month`;
     };
 
+    const formatResult = (value: string): string => {
+        return value === '' || isNaN(parseFloat(value)) ? '-' : parseFloat(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
     return (
         <section className="flex flex-col p-4 bg-stone-50">
             <h1 className="calc-h1 font-bold text-center pt-5 text-3xl">Debt Pay Off Calculator</h1>
@@ -203,19 +207,19 @@ const DebtCalc: React.FC = () => {
                         <tbody>
                             <tr>
                                 <td className="border px-4 py-2">Amount Of Months To Pay</td>
-                                <td className="border px-4 py-2">{results.payOffMonths}</td>
+                                <td className="border px-4 py-2">{results.payOffMonths || '-'}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Interest Paid (Interest + {(parseFloat(additionalInterestRate) * 100).toFixed(0)}% of Balance)</td>
-                                <td className="border px-4 py-2">${parseFloat(results.totalInterestPaidWithMinPayment).toLocaleString()}</td>
+                                <td className="border px-4 py-2">${formatResult(results.totalInterestPaidWithMinPayment)}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Principal Paid</td>
-                                <td className="border px-4 py-2">${parseFloat(results.totalPrincipalPaid).toLocaleString()}</td>
+                                <td className="border px-4 py-2">${formatResult(results.totalPrincipalPaid)}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Amount Paid</td>
-                                <td className="border px-4 py-2">${parseFloat(results.totalAmountPaid).toLocaleString()}</td>
+                                <td className="border px-4 py-2">${formatResult(results.totalAmountPaid)}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -233,68 +237,77 @@ const DebtCalc: React.FC = () => {
                         <tbody>
                             <tr>
                                 <td className="border px-4 py-2">Amount Of Months To Pay</td>
-                                <td className="border px-4 py-2">{results.payOffMonthsGemach}</td>
+                                <td className="border px-4 py-2">{results.payOffMonthsGemach || '-'}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Interest Paid with Gemach Services</td>
-                                <td className="border px-4 py-2">${parseFloat(results.totalInterestPaidGemach).toLocaleString()}</td>
+                                <td className="border px-4 py-2">${formatResult(results.totalInterestPaidGemach)}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Principal Paid with Gemach Services</td>
-                                <td className="border px-4 py-2">${parseFloat(results.totalPrincipalPaidGemach).toLocaleString()}</td>
+                                <td className="border px-4 py-2">${formatResult(results.totalPrincipalPaidGemach)}</td>
                             </tr>
                             <tr>
                                 <td className="border px-4 py-2">Total Amount Paid with Gemach Services</td>
-                                <td className="border px-4 py-2">${parseFloat(results.totalAmountPaidGemach).toLocaleString()}</td>
+                                <td className="border px-4 py-2">${formatResult(results.totalAmountPaidGemach)}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
-
             </div>
 
             <div className='flex gap-5 items-center justify-center'>
                 <div id="results" className="mt-5 flex flex-col  w-1/2">
-                <div><h2 className='text-center text-gray-950 font-bold'>Default Results</h2></div>
-                <table className="table-auto">
-                    <thead>
-                        <tr>
-                            <th className="px-4 py-2">Month</th>
-                            <th className="px-4 py-2">Balance Left</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {results.balanceHistory.map((balance, index) => (
-                            <tr key={index}>
-                                <td className="border px-4 py-2">{formatMonth(index + 1)}</td>
-                                <td className="border px-4 py-2">${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                    <div><h2 className='text-center text-gray-950 font-bold'>Default Results</h2></div>
+                    <table className="table-auto">
+                        <thead>
+                            <tr>
+                                <th className="px-4 py-2">Month</th>
+                                <th className="px-4 py-2">Balance Left</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {results.balanceHistory.length === 0 ? (
+                                <tr>
+                                    <td className="border px-4 py-2" colSpan={2}>-</td>
+                                </tr>
+                            ) : (
+                                results.balanceHistory.map((balance, index) => (
+                                    <tr key={index}>
+                                        <td className="border px-4 py-2">{formatMonth(index + 1)}</td>
+                                        <td className="border px-4 py-2">${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
 
-            <div id="results" className="mt-5 flex flex-col  w-1/2">
-
-                <div><h2 className='text-center text-gray-950 font-bold'>Gemach Results</h2></div>
-                <table className="table-auto">
-                    <thead>
-                        <tr>
-                            <th className="px-4 py-2">Month</th>
-                            <th className="px-4 py-2">Balance Left</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {results.balanceHistoryGemach.map((balance, index) => (
-                            <tr key={index}>
-                                <td className="border px-4 py-2">{formatMonth(index + 1)}</td>
-                                <td className="border px-4 py-2">${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <div id="results" className="mt-5 flex flex-col  w-1/2">
+                    <div><h2 className='text-center text-gray-950 font-bold'>Gemach Results</h2></div>
+                    <table className="table-auto">
+                        <thead>
+                            <tr>
+                                <th className="px-4 py-2">Month</th>
+                                <th className="px-4 py-2">Balance Left</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            {results.balanceHistoryGemach.length === 0 ? (
+                                <tr>
+                                    <td className="border px-4 py-2" colSpan={2}>-</td>
+                                </tr>
+                            ) : (
+                                results.balanceHistoryGemach.map((balance, index) => (
+                                    <tr key={index}>
+                                        <td className="border px-4 py-2">{formatMonth(index + 1)}</td>
+                                        <td className="border px-4 py-2">${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     );
