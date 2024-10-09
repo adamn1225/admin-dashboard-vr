@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from 'react';
-import PrequalForm from '../components/PrequalForm';
+import PrequalForm from './components/PrequalForm';
 import Link from 'next/link';
-import NewClientForm from '../components/NewClientForm'; // Corrected import path
+import NewClientForm from './components/NewClientForm'; // Corrected import path
 import Button from '@mui/material/Button';
 
 export default function SettingsPage() {

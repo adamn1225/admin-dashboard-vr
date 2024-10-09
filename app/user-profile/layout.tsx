@@ -1,7 +1,7 @@
 import '../globals.css';
 
 import Link from 'next/link';
-import { Logo, SettingsIcon, UsersIcon, VercelLogo } from '@/components/icons';
+import { Logo, SettingsIcon, UsersIcon, VercelLogo } from 'app/components/icons';
 import { NavItem } from '../nav-item';
 import EngineeringRoundedIcon from '@mui/icons-material/EngineeringRounded';
 import PrecisionManufacturingSharpIcon from '@mui/icons-material/PrecisionManufacturingSharp';
