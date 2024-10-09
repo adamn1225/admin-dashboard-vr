@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import Chart from 'chart.js/auto';
 
-const DebtCalc = () => {
-    const [bank, setBank] = useState('');
+const DebtCalc: React.FC = () => {
     const [debtAmount, setDebtAmount] = useState('');
     const [userInterestRate, setUserInterestRate] = useState('');
+    const [additionalInterestRate, setAdditionalInterestRate] = useState('0.01');
     const [monthlyPayAmount, setMonthlyPayAmount] = useState('');
     const [monthsToPayOff, setMonthsToPayOff] = useState('');
-    const [additionalInterestRate, setAdditionalInterestRate] = useState('0.01');
+    const [selectedBank, setSelectedBank] = useState('0');
     const [results, setResults] = useState({
         payOffMonths: '',
         totalInterestPaidWithMinPayment: '',
@@ -17,7 +16,68 @@ const DebtCalc = () => {
         totalInterestPaidGemach: '',
         totalPrincipalPaidGemach: '',
         totalAmountPaidGemach: '',
+        balanceHistory: [] as number[],
     });
+
+    const getBankInterestRate = (bankId: string): number => {
+        switch (bankId) {
+            case '1':
+                return 0.06;
+            case '2':
+                return 0.074;
+            case '3':
+                return 0.1199;
+            case '4':
+                return 0;
+            case '5':
+                return 0.0799;
+            case '6':
+                return 0.049;
+            case '7':
+                return 0.01;
+            case '8':
+                return 0.099;
+            case '9':
+                return 0.06;
+            default:
+                return 0;
+        }
+    };
+
+    const generateBreakdownTable = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number): { totalInterestPaid: number, balanceHistory: number[] } => {
+        let totalInterestPaid = 0;
+        let balanceHistory = [];
+
+        for (let month = 1; month <= totalMonths; month++) {
+            const interest = principal * monthlyInterestRate;
+            const principalAfter = principal + interest - monthlyPayAmount;
+
+            totalInterestPaid += interest;
+            balanceHistory.push(principalAfter);
+
+            principal = principalAfter;
+        }
+
+        return { totalInterestPaid, balanceHistory };
+    };
+
+    const generateBreakdownTableWithMinPayment = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number, additionalInterestRate: number): { totalInterestPaid: number, balanceHistory: number[] } => {
+        let totalInterestPaid = 0;
+        let balanceHistory = [];
+
+        for (let month = 1; month <= totalMonths; month++) {
+            const interest = principal * monthlyInterestRate;
+            const minPayment = interest + (principal * additionalInterestRate);
+            const principalAfter = principal + interest - minPayment;
+
+            totalInterestPaid += interest;
+            balanceHistory.push(principalAfter);
+
+            principal = principalAfter;
+        }
+
+        return { totalInterestPaid, balanceHistory };
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -26,15 +86,14 @@ const DebtCalc = () => {
         const additionalInterestRateNum = parseFloat(additionalInterestRate);
         const monthlyPayAmountNum = parseFloat(monthlyPayAmount);
         const monthsToPayOffNum = parseFloat(monthsToPayOff);
-        const selectedBank = bank;
 
         if (isNaN(debtAmountNum) || isNaN(userInterestRateNum) || (isNaN(monthlyPayAmountNum) && isNaN(monthsToPayOffNum))) {
             alert('Please enter valid numbers');
             return;
         }
 
-        let payOffMonths;
-        let calculatedMonthlyPayAmount;
+        let payOffMonths: number;
+        let calculatedMonthlyPayAmount: number;
 
         if (!isNaN(monthlyPayAmountNum)) {
             const monthlyInterestRate = userInterestRateNum / 12;
@@ -50,12 +109,12 @@ const DebtCalc = () => {
             payOffMonths = monthsToPayOffNum;
         }
 
-        const totalInterestPaid = generateBreakdownTableWithMinPayment(debtAmountNum, userInterestRateNum / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths), additionalInterestRateNum);
+        const { totalInterestPaid, balanceHistory } = generateBreakdownTableWithMinPayment(debtAmountNum, userInterestRateNum / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths), additionalInterestRateNum);
         const totalAmountPaid = debtAmountNum + totalInterestPaid;
         const totalPrincipalPaid = calculatedMonthlyPayAmount * Math.ceil(payOffMonths);
 
         const gemachInterestRate = getBankInterestRate(selectedBank);
-        const totalInterestPaidGemach = generateBreakdownTable(debtAmountNum, gemachInterestRate / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths));
+        const { totalInterestPaid: totalInterestPaidGemach } = generateBreakdownTable(debtAmountNum, gemachInterestRate / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths));
         const totalAmountPaidGemach = debtAmountNum + totalInterestPaidGemach;
         const totalPrincipalPaidGemach = calculatedMonthlyPayAmount * Math.ceil(payOffMonths);
 
@@ -68,120 +127,18 @@ const DebtCalc = () => {
             totalInterestPaidGemach: totalInterestPaidGemach.toFixed(2),
             totalPrincipalPaidGemach: totalPrincipalPaidGemach.toFixed(2),
             totalAmountPaidGemach: totalAmountPaidGemach.toFixed(2),
-        });
-
-        generateBalanceChart(debtAmountNum, userInterestRateNum / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths));
-    };
-
-    const getBankInterestRate = (bankId: string) => {
-        switch (bankId) {
-            case '1':
-                return 0.06;
-            case '2':
-                return 0.074;
-            case '3':
-                return 0.1199;
-            case '4':
-                return 0; // No interest for CITI
-            case '5':
-                return 0.0799; // Example rate for AMEX
-            case '6':
-                return 0.049; // Example rate for US BANK
-            case '7':
-                return 0.01; // Example rate for WELLS FARGO
-            case '8':
-                return 0.099; // Example rate for BARCLAYS
-            case '9':
-                return 0.06; // Example rate for BANK OF AMERICA
-            default:
-                return 0;
-        }
-    };
-
-    const generateBreakdownTable = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number) => {
-        let totalInterestPaid = 0;
-
-        for (let month = 1; month <= totalMonths; month++) {
-            const interest = principal * monthlyInterestRate;
-            const principalAfter = principal + interest - monthlyPayAmount;
-
-            totalInterestPaid += interest;
-
-            principal = principalAfter;
-        }
-
-        return totalInterestPaid;
-    };
-
-    const generateBreakdownTableWithMinPayment = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number, additionalInterestRate: number) => {
-        let totalInterestPaid = 0;
-
-        for (let month = 1; month <= totalMonths; month++) {
-            const interest = principal * monthlyInterestRate;
-            const minPayment = interest + (principal * additionalInterestRate);
-            const principalAfter = principal + interest - minPayment;
-
-            totalInterestPaid += interest;
-
-            principal = principalAfter;
-        }
-
-        return totalInterestPaid;
-    };
-
-    const generateBalanceChart = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number) => {
-        const labels = [];
-        const data = [];
-        let balance = principal;
-
-        for (let month = 1; month <= totalMonths; month++) {
-            const interest = balance * monthlyInterestRate;
-            balance = balance + interest - monthlyPayAmount;
-            labels.push(`Month ${month}`);
-            data.push(balance.toFixed(2));
-        }
-
-        const ctx = document.getElementById('balanceChart') as HTMLCanvasElement;
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Balance Left to Pay Off',
-                    data: data,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    fill: true,
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Month'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Balance ($)'
-                        }
-                    }
-                }
-            }
+            balanceHistory,
         });
     };
 
     return (
-        <section className="flex flex-col p-4">
-            <h1 className="calc-h1 font-bold text-center pt-5 text-2xl">Debt Pay Off Calculator</h1>
-            <div className="flex flex-col md:flex-row w-full justify-center gap-8 md:gap-24 bg-stone-100 p-8 md:p-16 rounded-lg drop-shadow">
+        <section className="flex flex-col p-4 bg-stone-50">
+            <h1 className="calc-h1 font-bold text-center pt-5 text-3xl">Debt Pay Off Calculator</h1>
+            <div className="flex flex-col md:flex-row w-full justify-center gap-8 md:gap-24 bg-stone-50 p-8 md:p-16 rounded-lg drop-shadow">
                 <form className="w-full md:w-1/4 flex flex-col" onSubmit={handleSubmit}>
                     <div className="item2 flex flex-col">
                         <h2 className="h2-bank">Who do you bank with?</h2>
-                        <select id="bank" className="p-2 border rounded bg-white mb-3" value={bank} onChange={(e) => setBank(e.target.value)}>
+                        <select id="bank" className="p-2 border rounded bg-white mb-3" value={selectedBank} onChange={(e) => setSelectedBank(e.target.value)}>
                             <option id="placeholder" value="0" disabled>Select Bank</option>
                             <option id="chase" value="1">CHASE</option>
                             <option id="capitalOne" value="2">CAPITAL ONE</option>
@@ -200,8 +157,17 @@ const DebtCalc = () => {
 
                         <label htmlFor="userInterestRate">Credit Card Interest Rate</label>
                         <div className="input-container-percent mb-3">
-                            <input type="text" id="userInterestRate" className="p-2 border rounded w-full" value={userInterestRate} onChange={(e) => setUserInterestRate(e.target.value)} />
+                            <input type="text" id="userInterestRate" className="p-2 border rounded w-full" placeholder="20" value={userInterestRate} onChange={(e) => setUserInterestRate(e.target.value)} />
                         </div>
+
+                        <label htmlFor="additionalInterestRate">Additional Interest Rate</label>
+                        <select id="additionalInterestRate" className="p-2 border rounded bg-white mb-3" value={additionalInterestRate} onChange={(e) => setAdditionalInterestRate(e.target.value)}>
+                            <option value="0.01">Interest + 1% of Balance</option>
+                            <option value="0.02">Interest + 2% of Balance</option>
+                            <option value="0.03">Interest + 3% of Balance</option>
+                            <option value="0.04">Interest + 4% of Balance</option>
+                            <option value="0.05">Interest + 5% of Balance</option>
+                        </select>
 
                         <label htmlFor="monthlyPayAmount">Monthly Payment Amount</label>
                         <div className="input-container mb-3">
@@ -211,14 +177,94 @@ const DebtCalc = () => {
                         <h2 className="font-bold my-2">Or</h2>
 
                         <label htmlFor="monthsToPayOff">Number of Months to Pay Off</label>
-                        <div className="input-container mb-3">
+                        <div className="mb-3">
                             <input type="text" id="monthsToPayOff" className="p-2 border rounded w-full" placeholder="24" value={monthsToPayOff} onChange={(e) => setMonthsToPayOff(e.target.value)} />
                         </div>
                     </div>
+                    <button className="bg-cyan-500 p-2 w-full rounded-lg text-stone-100 font-semibold">Submit</button>
                 </form>
+
+                <div id="results" className="mt-5 flex flex-col w-full md:w-1/2">
+                    <table className="table-auto w-full">
+                        <thead>
+                            <tr>
+                                <th className="px-4 py-2">Description</th>
+                                <th className="px-4 py-2">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td className="border px-4 py-2">Amount Of Months To Pay</td>
+                                <td className="border px-4 py-2">{results.payOffMonths}</td>
+                            </tr>
+                            <tr>
+                                <td className="border px-4 py-2">Total Interest Paid (Interest + {(parseFloat(additionalInterestRate) * 100).toFixed(0)}% of Balance)</td>
+                                <td className="border px-4 py-2">{results.totalInterestPaidWithMinPayment}</td>
+                            </tr>
+                            <tr>
+                                <td className="border px-4 py-2">Total Principal Paid</td>
+                                <td className="border px-4 py-2">{results.totalPrincipalPaid}</td>
+                            </tr>
+                            <tr>
+                                <td className="border px-4 py-2">Total Amount Paid</td>
+                                <td className="border px-4 py-2">{results.totalAmountPaid}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                
+
+                <div id="results" className="mt-5 flex flex-col w-full md:w-1/2">
+                    <table className="table-auto w-full">
+                        <thead>
+                            <tr>
+                                <th className="px-4 py-2">Description</th>
+                                <th className="px-4 py-2">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td className="border px-4 py-2">Amount Of Months To Pay</td>
+                                <td className="border px-4 py-2">{results.payOffMonthsGemach}</td>
+                            </tr>
+                            <tr>
+                                <td className="border px-4 py-2">Total Interest Paid with Gemach Services</td>
+                                <td className="border px-4 py-2">{results.totalInterestPaidGemach}</td>
+                            </tr>
+                            <tr>
+                                <td className="border px-4 py-2">Total Principal Paid with Gemach Services</td>
+                                <td className="border px-4 py-2">{results.totalPrincipalPaidGemach}</td>
+                            </tr>
+                            <tr>
+                                <td className="border px-4 py-2">Total Amount Paid with Gemach Services</td>
+                                <td className="border px-4 py-2">{results.totalAmountPaidGemach}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="results" className="mt-5 flex flex-col justify-center align-middle items-center ">
+                <table className="table-auto w-1/3">
+                    <thead>
+                        <tr>
+                            <th className="px-4 py-2">Month</th>
+                            <th className="px-4 py-2">Balance Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {results.balanceHistory.map((balance, index) => (
+                            <tr key={index}>
+                                <td className="border px-4 py-2">{index + 1}</td>
+                                <td className="border px-4 py-2">{balance.toFixed(2)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </section>
     );
-}
+};
 
 export default DebtCalc;
