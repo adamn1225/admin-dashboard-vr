@@ -1,6 +1,6 @@
 "use client";
 import React from 'react'
-import DebtCalc from '@/components/DebtCalc';
+import DebtCalc from '../components/DebtCalc';
 
 const DebtPayoff = () => {
     return (
