@@ -7,6 +7,7 @@ const DebtCalc: React.FC = () => {
     const [monthlyPayAmount, setMonthlyPayAmount] = useState('');
     const [monthsToPayOff, setMonthsToPayOff] = useState('');
     const [selectedBank, setSelectedBank] = useState('0');
+    const [calculatedMonthlyPayAmount, setCalculatedMonthlyPayAmount] = useState('');
     const [results, setResults] = useState({
         payOffMonths: '',
         totalInterestPaidWithMinPayment: '',
@@ -108,6 +109,7 @@ const DebtCalc: React.FC = () => {
             const monthlyInterestRate = userInterestRateNum / 12;
             calculatedMonthlyPayAmount = (debtAmountNum * monthlyInterestRate) / (1 - Math.pow(1 + monthlyInterestRate, -monthsToPayOffNum));
             payOffMonths = monthsToPayOffNum;
+            setCalculatedMonthlyPayAmount(calculatedMonthlyPayAmount.toFixed(2));
         }
 
         const { totalInterestPaid, balanceHistory } = generateBreakdownTableWithMinPayment(debtAmountNum, userInterestRateNum / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths), additionalInterestRateNum);
@@ -221,6 +223,12 @@ const DebtCalc: React.FC = () => {
                                 <td className="border px-4 py-2">Total Amount Paid</td>
                                 <td className="border px-4 py-2">${formatResult(results.totalAmountPaid)}</td>
                             </tr>
+                            {monthsToPayOff && (
+                                <tr>
+                                    <td className="border px-4 py-2">Calculated Monthly Payment Amount</td>
+                                    <td className="border px-4 py-2">${calculatedMonthlyPayAmount}</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
