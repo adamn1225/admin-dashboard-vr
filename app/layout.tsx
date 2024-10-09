@@ -38,6 +38,9 @@ export default function RootLayout({
                   <NavItem href="/">
                     <span className="text-slate-100">Prequalification Form</span>
                   </NavItem>
+                  <NavItem href="/debt-payoff">
+                    <span className="text-slate-100">Debt Pay Off Calculator</span>
+                  </NavItem>
                 </nav>
               </div>
 
