@@ -17,6 +17,7 @@ const DebtCalc: React.FC = () => {
         totalPrincipalPaidGemach: '',
         totalAmountPaidGemach: '',
         balanceHistory: [] as number[],
+        balanceHistoryGemach: [] as number[],
     });
 
     const getBankInterestRate = (bankId: string): number => {
@@ -114,7 +115,7 @@ const DebtCalc: React.FC = () => {
         const totalPrincipalPaid = calculatedMonthlyPayAmount * Math.ceil(payOffMonths);
 
         const gemachInterestRate = getBankInterestRate(selectedBank);
-        const { totalInterestPaid: totalInterestPaidGemach } = generateBreakdownTable(debtAmountNum, gemachInterestRate / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths));
+        const { totalInterestPaid: totalInterestPaidGemach, balanceHistory: balanceHistoryGemach } = generateBreakdownTable(debtAmountNum, gemachInterestRate / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths));
         const totalAmountPaidGemach = debtAmountNum + totalInterestPaidGemach;
         const totalPrincipalPaidGemach = calculatedMonthlyPayAmount * Math.ceil(payOffMonths);
 
@@ -128,7 +129,13 @@ const DebtCalc: React.FC = () => {
             totalPrincipalPaidGemach: totalPrincipalPaidGemach.toFixed(2),
             totalAmountPaidGemach: totalAmountPaidGemach.toFixed(2),
             balanceHistory,
+            balanceHistoryGemach,
         });
+    };
+
+    const formatMonth = (month: number): string => {
+        const suffix = month === 1 ? 'st' : month === 2 ? 'nd' : month === 3 ? 'rd' : 'th';
+        return `${month}${suffix} month`;
     };
 
     return (
@@ -181,7 +188,7 @@ const DebtCalc: React.FC = () => {
                             <input type="text" id="monthsToPayOff" className="p-2 border rounded w-full" placeholder="24" value={monthsToPayOff} onChange={(e) => setMonthsToPayOff(e.target.value)} />
                         </div>
                     </div>
-                    <button className="bg-cyan-500 p-2 w-full rounded-lg text-stone-100 font-semibold">Submit</button>
+                    <button className="bg-gray-950 p-2 w-full rounded-lg text-stone-100 font-semibold">Submit</button>
                 </form>
 
                 <div id="results" className="mt-5 flex flex-col w-full md:w-1/2">
@@ -216,6 +223,7 @@ const DebtCalc: React.FC = () => {
                 
 
                 <div id="results" className="mt-5 flex flex-col w-full md:w-1/2">
+                    <div><h2 className='text-center text-gray-950 font-bold'>Gemach Results</h2></div>
                     <table className="table-auto w-full">
                         <thead>
                             <tr>
@@ -243,10 +251,14 @@ const DebtCalc: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
+
+
             </div>
 
-            <div id="results" className="mt-5 flex flex-col justify-center align-middle items-center ">
-                <table className="table-auto w-1/3">
+            <div className='flex gap-5 items-center justify-center'>
+                <div id="results" className="mt-5 flex flex-col  w-1/2">
+                <div><h2 className='text-center text-gray-950 font-bold'>Default Results</h2></div>
+                <table className="table-auto">
                     <thead>
                         <tr>
                             <th className="px-4 py-2">Month</th>
@@ -256,12 +268,34 @@ const DebtCalc: React.FC = () => {
                     <tbody>
                         {results.balanceHistory.map((balance, index) => (
                             <tr key={index}>
-                                <td className="border px-4 py-2">{index + 1}</td>
-                                <td className="border px-4 py-2">{balance.toFixed(2)}</td>
+                                <td className="border px-4 py-2">{formatMonth(index + 1)}</td>
+                                <td className="border px-4 py-2">${balance.toFixed(2)}</td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
+            </div>
+
+            <div id="results" className="mt-5 flex flex-col  w-1/2">
+
+                <div><h2 className='text-center text-gray-950 font-bold'>Gemach Results</h2></div>
+                <table className="table-auto">
+                    <thead>
+                        <tr>
+                            <th className="px-4 py-2">Month</th>
+                            <th className="px-4 py-2">Balance Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {results.balanceHistoryGemach.map((balance, index) => (
+                            <tr key={index}>
+                                <td className="border px-4 py-2">{formatMonth(index + 1)}</td>
+                                <td className="border px-4 py-2">${balance.toFixed(2)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
             </div>
         </section>
     );
