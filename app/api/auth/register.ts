@@ -11,7 +11,7 @@ async function registerUser(email: string, plainPassword: string, name?: string)
         data: {
             email,
             password: hashedPassword,
-            name,
+            name: name || '', // Provide a default value
         },
     });
     return user;
