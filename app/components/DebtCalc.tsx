@@ -268,7 +268,7 @@ const DebtCalc: React.FC = () => {
                         {results.balanceHistory.map((balance, index) => (
                             <tr key={index}>
                                 <td className="border px-4 py-2">{formatMonth(index + 1)}</td>
-                                <td className="border px-4 py-2">${balance.toFixed(2)}</td>
+                                <td className="border px-4 py-2">${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -289,7 +289,7 @@ const DebtCalc: React.FC = () => {
                         {results.balanceHistoryGemach.map((balance, index) => (
                             <tr key={index}>
                                 <td className="border px-4 py-2">{formatMonth(index + 1)}</td>
-                                <td className="border px-4 py-2">${balance.toFixed(2)}</td>
+                                <td className="border px-4 py-2">${balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>
                         ))}
                     </tbody>
