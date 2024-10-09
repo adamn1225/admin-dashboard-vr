@@ -7,7 +7,6 @@ const DebtCalc: React.FC = () => {
     const [monthlyPayAmount, setMonthlyPayAmount] = useState('');
     const [monthsToPayOff, setMonthsToPayOff] = useState('');
     const [selectedBank, setSelectedBank] = useState('0');
-    const [calculatedMonthlyPayAmount, setCalculatedMonthlyPayAmount] = useState('');
     const [results, setResults] = useState({
         payOffMonths: '',
         totalInterestPaidWithMinPayment: '',
@@ -89,8 +88,13 @@ const DebtCalc: React.FC = () => {
         const monthlyPayAmountNum = parseFloat(monthlyPayAmount);
         const monthsToPayOffNum = parseFloat(monthsToPayOff);
 
-        if (isNaN(debtAmountNum) || isNaN(userInterestRateNum) || (isNaN(monthlyPayAmountNum) && isNaN(monthsToPayOffNum))) {
-            alert('Please enter valid numbers');
+        if (isNaN(debtAmountNum) || isNaN(userInterestRateNum)) {
+            alert('Please enter valid numbers for Debt Amount and Credit Card Interest Rate.');
+            return;
+        }
+
+        if ((!monthlyPayAmount && !monthsToPayOff) || (monthlyPayAmount && monthsToPayOff)) {
+            alert('Please fill out either Monthly Payment Amount or Number of Months to Pay Off, but not both.');
             return;
         }
 
@@ -109,7 +113,6 @@ const DebtCalc: React.FC = () => {
             const monthlyInterestRate = userInterestRateNum / 12;
             calculatedMonthlyPayAmount = (debtAmountNum * monthlyInterestRate) / (1 - Math.pow(1 + monthlyInterestRate, -monthsToPayOffNum));
             payOffMonths = monthsToPayOffNum;
-            setCalculatedMonthlyPayAmount(calculatedMonthlyPayAmount.toFixed(2));
         }
 
         const { totalInterestPaid, balanceHistory } = generateBreakdownTableWithMinPayment(debtAmountNum, userInterestRateNum / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths), additionalInterestRateNum);
@@ -151,7 +154,7 @@ const DebtCalc: React.FC = () => {
                 <form className="w-full md:w-1/4 flex flex-col" onSubmit={handleSubmit}>
                     <div className="item2 flex flex-col">
                         <h2 className="h2-bank">Who do you bank with?</h2>
-                        <select id="bank" className="p-2 border rounded bg-white mb-3" value={selectedBank} onChange={(e) => setSelectedBank(e.target.value)}>
+                        <select id="bank" className="p-2 border rounded bg-white mb-3" value={selectedBank} onChange={(e) => setSelectedBank(e.target.value)} required>
                             <option id="placeholder" value="0" disabled>Select Bank</option>
                             <option id="chase" value="1">CHASE</option>
                             <option id="capitalOne" value="2">CAPITAL ONE</option>
@@ -165,16 +168,16 @@ const DebtCalc: React.FC = () => {
                         </select>
                         <label htmlFor="debtAmount">Debt Amount</label>
                         <div className="input-container mb-3">
-                            <input id="debtAmount" type="text" className="p-2 border rounded w-full" placeholder="10,000" value={debtAmount} onChange={(e) => setDebtAmount(e.target.value)} />
+                            <input id="debtAmount" type="text" className="p-2 border rounded w-full" placeholder="10,000" value={debtAmount} onChange={(e) => setDebtAmount(e.target.value)} required />
                         </div>
 
                         <label htmlFor="userInterestRate">Credit Card Interest Rate</label>
                         <div className="input-container-percent mb-3">
-                            <input type="text" id="userInterestRate" className="p-2 border rounded w-full" placeholder="20" value={userInterestRate} onChange={(e) => setUserInterestRate(e.target.value)} />
+                            <input type="text" id="userInterestRate" className="p-2 border rounded w-full" placeholder="20" value={userInterestRate} onChange={(e) => setUserInterestRate(e.target.value)} required />
                         </div>
 
                         <label htmlFor="additionalInterestRate">Additional Interest Rate</label>
-                        <select id="additionalInterestRate" className="p-2 border rounded bg-white mb-3" value={additionalInterestRate} onChange={(e) => setAdditionalInterestRate(e.target.value)}>
+                        <select id="additionalInterestRate" className="p-2 border rounded bg-white mb-3" value={additionalInterestRate} onChange={(e) => setAdditionalInterestRate(e.target.value)} required>
                             <option value="0.01">Interest + 1% of Balance</option>
                             <option value="0.02">Interest + 2% of Balance</option>
                             <option value="0.03">Interest + 3% of Balance</option>
@@ -223,12 +226,6 @@ const DebtCalc: React.FC = () => {
                                 <td className="border px-4 py-2">Total Amount Paid</td>
                                 <td className="border px-4 py-2">${formatResult(results.totalAmountPaid)}</td>
                             </tr>
-                            {monthsToPayOff && (
-                                <tr>
-                                    <td className="border px-4 py-2">Calculated Monthly Payment Amount</td>
-                                    <td className="border px-4 py-2">${calculatedMonthlyPayAmount}</td>
-                                </tr>
-                            )}
                         </tbody>
                     </table>
                 </div>
@@ -319,6 +316,6 @@ const DebtCalc: React.FC = () => {
             </div>
         </section>
     );
-};
+}
 
 export default DebtCalc;
