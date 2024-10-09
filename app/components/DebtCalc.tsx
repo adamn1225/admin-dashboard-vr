@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import Chart from 'chart.js/auto';
 
-const DebtCalc: React.FC = () => {
+const DebtCalc = () => {
+    const [bank, setBank] = useState('');
     const [debtAmount, setDebtAmount] = useState('');
     const [userInterestRate, setUserInterestRate] = useState('');
-    const [additionalInterestRate, setAdditionalInterestRate] = useState('0.01');
     const [monthlyPayAmount, setMonthlyPayAmount] = useState('');
     const [monthsToPayOff, setMonthsToPayOff] = useState('');
-    const [selectedBank, setSelectedBank] = useState('0');
+    const [additionalInterestRate, setAdditionalInterestRate] = useState('0.01');
     const [results, setResults] = useState({
         payOffMonths: '',
         totalInterestPaidWithMinPayment: '',
@@ -25,14 +26,15 @@ const DebtCalc: React.FC = () => {
         const additionalInterestRateNum = parseFloat(additionalInterestRate);
         const monthlyPayAmountNum = parseFloat(monthlyPayAmount);
         const monthsToPayOffNum = parseFloat(monthsToPayOff);
+        const selectedBank = bank;
 
         if (isNaN(debtAmountNum) || isNaN(userInterestRateNum) || (isNaN(monthlyPayAmountNum) && isNaN(monthsToPayOffNum))) {
             alert('Please enter valid numbers');
             return;
         }
 
-        let payOffMonths: number;
-        let calculatedMonthlyPayAmount: number;
+        let payOffMonths;
+        let calculatedMonthlyPayAmount;
 
         if (!isNaN(monthlyPayAmountNum)) {
             const monthlyInterestRate = userInterestRateNum / 12;
@@ -67,9 +69,11 @@ const DebtCalc: React.FC = () => {
             totalPrincipalPaidGemach: totalPrincipalPaidGemach.toFixed(2),
             totalAmountPaidGemach: totalAmountPaidGemach.toFixed(2),
         });
+
+        generateBalanceChart(debtAmountNum, userInterestRateNum / 12, calculatedMonthlyPayAmount, Math.ceil(payOffMonths));
     };
 
-    const getBankInterestRate = (bankId: string): number => {
+    const getBankInterestRate = (bankId: string) => {
         switch (bankId) {
             case '1':
                 return 0.06;
@@ -78,23 +82,23 @@ const DebtCalc: React.FC = () => {
             case '3':
                 return 0.1199;
             case '4':
-                return 0;
+                return 0; // No interest for CITI
             case '5':
-                return 0.0799;
+                return 0.0799; // Example rate for AMEX
             case '6':
-                return 0.049;
+                return 0.049; // Example rate for US BANK
             case '7':
-                return 0.01;
+                return 0.01; // Example rate for WELLS FARGO
             case '8':
-                return 0.099;
+                return 0.099; // Example rate for BARCLAYS
             case '9':
-                return 0.06;
+                return 0.06; // Example rate for BANK OF AMERICA
             default:
                 return 0;
         }
     };
 
-    const generateBreakdownTable = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number): number => {
+    const generateBreakdownTable = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number) => {
         let totalInterestPaid = 0;
 
         for (let month = 1; month <= totalMonths; month++) {
@@ -109,7 +113,7 @@ const DebtCalc: React.FC = () => {
         return totalInterestPaid;
     };
 
-    const generateBreakdownTableWithMinPayment = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number, additionalInterestRate: number): number => {
+    const generateBreakdownTableWithMinPayment = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number, additionalInterestRate: number) => {
         let totalInterestPaid = 0;
 
         for (let month = 1; month <= totalMonths; month++) {
@@ -125,14 +129,59 @@ const DebtCalc: React.FC = () => {
         return totalInterestPaid;
     };
 
+    const generateBalanceChart = (principal: number, monthlyInterestRate: number, monthlyPayAmount: number, totalMonths: number) => {
+        const labels = [];
+        const data = [];
+        let balance = principal;
+
+        for (let month = 1; month <= totalMonths; month++) {
+            const interest = balance * monthlyInterestRate;
+            balance = balance + interest - monthlyPayAmount;
+            labels.push(`Month ${month}`);
+            data.push(balance.toFixed(2));
+        }
+
+        const ctx = document.getElementById('balanceChart') as HTMLCanvasElement;
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Balance Left to Pay Off',
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Month'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Balance ($)'
+                        }
+                    }
+                }
+            }
+        });
+    };
+
     return (
-        <section className="flex flex-col p-4 bg-stone-50">
-            <h1 className="calc-h1 font-bold text-center pt-5 text-3xl">Debt Pay Off Calculator</h1>
-            <div className="flex flex-col md:flex-row w-full justify-center gap-8 md:gap-24 bg-stone-50 p-8 md:p-16 rounded-lg drop-shadow">
+        <section className="flex flex-col p-4">
+            <h1 className="calc-h1 font-bold text-center pt-5 text-2xl">Debt Pay Off Calculator</h1>
+            <div className="flex flex-col md:flex-row w-full justify-center gap-8 md:gap-24 bg-stone-100 p-8 md:p-16 rounded-lg drop-shadow">
                 <form className="w-full md:w-1/4 flex flex-col" onSubmit={handleSubmit}>
                     <div className="item2 flex flex-col">
                         <h2 className="h2-bank">Who do you bank with?</h2>
-                        <select id="bank" className="p-2 border rounded bg-white mb-3" value={selectedBank} onChange={(e) => setSelectedBank(e.target.value)}>
+                        <select id="bank" className="p-2 border rounded bg-white mb-3" value={bank} onChange={(e) => setBank(e.target.value)}>
                             <option id="placeholder" value="0" disabled>Select Bank</option>
                             <option id="chase" value="1">CHASE</option>
                             <option id="capitalOne" value="2">CAPITAL ONE</option>
@@ -151,17 +200,8 @@ const DebtCalc: React.FC = () => {
 
                         <label htmlFor="userInterestRate">Credit Card Interest Rate</label>
                         <div className="input-container-percent mb-3">
-                            <input type="text" id="userInterestRate" className="p-2 border rounded w-full" placeholder="20" value={userInterestRate} onChange={(e) => setUserInterestRate(e.target.value)} />
+                            <input type="text" id="userInterestRate" className="p-2 border rounded w-full" value={userInterestRate} onChange={(e) => setUserInterestRate(e.target.value)} />
                         </div>
-
-                        <label htmlFor="additionalInterestRate">Additional Interest Rate</label>
-                        <select id="additionalInterestRate" className="p-2 border rounded bg-white mb-3" value={additionalInterestRate} onChange={(e) => setAdditionalInterestRate(e.target.value)}>
-                            <option value="0.01">Interest + 1% of Balance</option>
-                            <option value="0.02">Interest + 2% of Balance</option>
-                            <option value="0.03">Interest + 3% of Balance</option>
-                            <option value="0.04">Interest + 4% of Balance</option>
-                            <option value="0.05">Interest + 5% of Balance</option>
-                        </select>
 
                         <label htmlFor="monthlyPayAmount">Monthly Payment Amount</label>
                         <div className="input-container mb-3">
@@ -171,66 +211,14 @@ const DebtCalc: React.FC = () => {
                         <h2 className="font-bold my-2">Or</h2>
 
                         <label htmlFor="monthsToPayOff">Number of Months to Pay Off</label>
-                        <div className="mb-3">
+                        <div className="input-container mb-3">
                             <input type="text" id="monthsToPayOff" className="p-2 border rounded w-full" placeholder="24" value={monthsToPayOff} onChange={(e) => setMonthsToPayOff(e.target.value)} />
                         </div>
                     </div>
-                    <button className="bg-cyan-500 p-2 w-full rounded-lg text-stone-100 font-semibold">Submit</button>
                 </form>
-
-                <div id="results" className="mt-5 flex flex-col w-full md:w-1/2">
-                    <div className="flex flex-col gap-8">
-                        <div className="text-slate-950 font-bold text-2xl">Results Without Gemach
-                            <div className="border-b-2 border-slate-950/60 w-2/3"></div>
-                        </div>
-                        <div className="flex flex-col gap-1 text-slate-950 font-bold text-xl">Amount Of Months To Pay
-                            <div className="border-b-2 border-slate-950/60 w-3/4"></div>
-                            <span className="text-2xl font-semibold text-slate-700" id="payOffMonthsResult">{results.payOffMonths}</span>
-                        </div>
-                        <div className="flex flex-col gap-1 text-slate-950 font-bold text-lg text-nowrap"><span>Total Interest Paid (Interest +
-                            <span id="additionalInterestRateDisplay">{(parseFloat(additionalInterestRate) * 100).toFixed(0)}%</span> of Balance)</span>
-                            <div className="border-b-2 border-slate-950/60 w-1/2"></div>
-                            <span className="text-2xl font-semibold text-slate-700" id="totalInterestPaidWithMinPayment">{results.totalInterestPaidWithMinPayment}</span>
-                        </div>
-
-                        <div className="flex flex-col gap-1 text-slate-950 font-bold text-lg">Total Principal Paid
-                            <div className="border-b-2 border-slate-950/60 w-1/2"></div>
-                            <span className="text-2xl font-semibold text-slate-700" id="totalPrincipalPaid">{results.totalPrincipalPaid}</span>
-                        </div>
-                        <div className="flex flex-col gap-1 text-slate-950 font-bold text-lg">Total Amount Paid
-                            <div className="border-b-2 border-slate-950/60 w-1/2"></div>
-                            <span className="text-2xl font-semibold text-slate-700" id="totalAmountPaid">{results.totalAmountPaid}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="results" className="mt-5 flex flex-col w-full md:w-1/2">
-                    <div className="flex flex-col gap-8">
-                        <div className="text-slate-950 font-bold text-2xl">Gemach Results
-                            <div className="border-b-2 border-slate-950/60 w-2/3"></div>
-                        </div>
-                        <div className="flex flex-col gap-1 text-slate-950 font-bold text-xl">Amount Of Months To Pay
-                            <div className="border-b-2 border-slate-950/60 w-3/4"></div>
-                            <span className="text-2xl font-semibold text-slate-700" id="payOffMonthsResultGemach">{results.payOffMonthsGemach}</span>
-                        </div>
-                        <div className="flex flex-col gap-1 text-slate-950 font-bold text-lg">Total Interest Paid with Gemach Services
-                            <div className="border-b-2 border-slate-950/60 w-1/2"></div>
-                            <span className="text-2xl font-semibold text-slate-700" id="totalInterestPaidGemach">{results.totalInterestPaidGemach}</span>
-                        </div>
-
-                        <div className="flex flex-col gap-1 text-slate-950 font-bold text-lg">Total Principal Paid with Gemach Services
-                            <div className="border-b-2 border-slate-950/60 w-1/2"></div>
-                            <span className="text-2xl font-semibold text-slate-700" id="totalPrincipalPaidGemach">{results.totalPrincipalPaidGemach}</span>
-                        </div>
-                        <div className="flex flex-col gap-1 text-slate-950 font-bold text-lg">Total Amount Paid with Gemach Services
-                            <div className="border-b-2 border-slate-950/60 w-1/2"></div>
-                            <span className="text-2xl font-semibold text-slate-700" id="totalAmountPaidGemach">{results.totalAmountPaidGemach}</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </section>
     );
-};
+}
 
 export default DebtCalc;
