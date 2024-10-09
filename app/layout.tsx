@@ -5,7 +5,7 @@ import { Logo, SettingsIcon, UsersIcon, VercelLogo } from './components/icons'; 
 import { NavItem } from './nav-item';
 import EngineeringRoundedIcon from '@mui/icons-material/EngineeringRounded';
 import PrecisionManufacturingSharpIcon from '@mui/icons-material/PrecisionManufacturingSharp';
-
+//comment for push
 export const metadata = {
   title: 'Next.js App Router + NextAuth + Tailwind CSS',
   description:
